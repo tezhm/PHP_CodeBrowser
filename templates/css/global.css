@@ -12,30 +12,30 @@ li {
 }
 
 /* Table borders */
-table {
-    border-collapse: collapse;
-}
+/*table {*/
+    /*border-collapse: collapse;*/
+/*}*/
 
-tr:first-child {
-    border-left:  none;
-    border-right: none;
-}
+/*tr:first-child {*/
+    /*border-left:  none;*/
+    /*border-right: none;*/
+/*}*/
 
-tr {
-    border: 1px solid #E7E7E7;
-    border-top: none;
-}
+/*tr {*/
+    /*border: 1px solid #E7E7E7;*/
+    /*border-top: none;*/
+/*}*/
 
 /* Alternating Colors */
 
-li.even,
-tr.even {
+li.even {
+/*tr.even {*/
     background-color: #F9F9F9;
 }
 
 #review li.white, /* This is here because the htmlstill uses this tag */
-li.odd,
-tr.odd {
+li.odd {
+/*tr.odd {*/
     background-color: #FFFFFF;
 }
 

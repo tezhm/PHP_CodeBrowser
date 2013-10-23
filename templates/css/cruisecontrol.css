@@ -94,15 +94,15 @@ body.codebrowser {
 	margin: 5px;
 }
 
-.codebrowser .filelist td {
-	background-color: #ffffff;
-	padding: 5px;
-}
+/*.codebrowser .filelist td {*/
+	/*background-color: #ffffff;*/
+	/*padding: 5px;*/
+/*}*/
 
-.codebrowser .filelist table {
-	background-color: #fff;
-	border: none;
-}
+/*.codebrowser .filelist table {*/
+	/*background-color: #fff;*/
+	/*border: none;*/
+/*}*/
 
 
 .codebrowser .filelist a {
