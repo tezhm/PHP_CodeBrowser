@@ -12,8 +12,10 @@
         'Padawan'    => false
     );
 
-    foreach ($fileList as $file) foreach ($file->getIssues() as $issue) {
-        $occuringErrorTypes[$issue->foundBy] = true;
+    foreach ($fileList as $file) {
+        foreach ($file->getIssues() as $issue) {
+            $occuringErrorTypes[$issue->foundBy] = true;
+        }
     }
 
     $occuringErrorTypes = array_keys(array_filter($occuringErrorTypes));
@@ -53,7 +55,7 @@
                     <div id="treeHeader">
                         <a href="index.html" class='fileLink'>CodeBrowser</a>
                     </div>
-                    <?= $treeList; ?>
+                    <?= $treeList ?>
                 </div>
                 <div id="treeToggle" style="background-image: url('img/treeToggle-extended.png');"></div>
             </div>
@@ -94,11 +96,10 @@
                                     <td align="center"><?= $count ?></td>
                                 <?php endforeach ?>
                             </tr>
-                        <? endforeach ?>
+                        <?php endforeach ?>
                     </table>
                 </div>
             </div>
-
         </div>
     </body>
 </html>
