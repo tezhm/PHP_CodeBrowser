@@ -252,10 +252,11 @@ class ViewReview extends ViewAbstract
      * line in a separate node.
      *
      * @param string $sourceCode The PHP source code
+     * @param string $fileName   The source file
      *
      * @return DOMDocument
      */
-    protected function highlightPhpCode($sourceCode)
+    protected function highlightPhpCode($sourceCode, $fileName)
     {
         $code = highlight_string($sourceCode, true);
         if (extension_loaded('mbstring') && !mb_check_encoding($code, 'UTF-8')) {
@@ -274,7 +275,11 @@ class ViewReview extends ViewAbstract
         }
 
         $sourceDom = new DOMDocument();
-        $sourceDom->loadHTML('<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>' . $code);
+        $this->doLoadHTML(
+            $sourceDom,
+            $fileName,
+            '<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>' . $code
+        );
 
         //fetch <code>-><span>->children from php generated html
         $sourceElements = $sourceDom->getElementsByTagname('code')->item(0)
@@ -359,7 +364,7 @@ class ViewReview extends ViewAbstract
         $extension  = pathinfo($file, PATHINFO_EXTENSION);
 
         if (in_array($extension, $this->phpSuffixes)) {
-            return $this->highlightPhpCode($sourceCode);
+            return $this->highlightPhpCode($sourceCode, $file);
         } else {
             $sourceCode = preg_replace(
                 '/^.*$/m',
@@ -372,7 +377,7 @@ class ViewReview extends ViewAbstract
             $sourceCode = $this->stripInvalidXml($sourceCode);
 
             $doc = new DOMDocument();
-            $doc->loadHTML($sourceCode);
+            $this->doLoadHTML($doc, $file, $sourceCode);
 
             return $doc;
         }
@@ -428,5 +433,64 @@ class ViewReview extends ViewAbstract
             }
         }
         return $ret;
+    }
+
+    /**
+     * loadHTML with custom error output
+     *
+     * @param DomDocument $doc
+     * @param string      $fileName
+     * @param string      $html
+     *
+     * @return void
+     */
+    private function doLoadHTML(DomDocument $doc, $fileName, $html)
+    {
+        libxml_use_internal_errors(true);
+
+        if (!$doc->loadHTML($html)) {
+            foreach (libxml_get_errors() as $error) {
+                $this->logLoadHTMLError($fileName, $error, explode("\n", $html));
+            }
+        }
+
+        libxml_use_internal_errors(false);
+    }
+
+    /**
+     * log libxml error for loadHTML
+     *
+     * @param string      $fileName source file
+     * @param LibXMLError $error
+     * @param array       $html     lines of html
+     *
+     * @return void
+     */
+    private function logLoadHTMLError($fileName, \LibXMLError $error, array $html)
+    {
+        $line  = $error->line - 1;
+        $col   = $error->column -1;
+        $start = max($col, 0);
+        $end   = min($start, $col) + 80;
+
+        $within = substr($html[$line], $start, $end);
+
+        switch ($error->level) {
+            case LIBXML_ERR_WARNING:
+                $log = "Warning $error->code: ";
+                break;
+            case LIBXML_ERR_ERROR:
+                $log = "Error $error->code: ";
+                break;
+            case LIBXML_ERR_FATAL:
+                $log = "Fatal Error $error->code: ";
+                break;
+        }
+
+        $log .= trim($error->message) .
+          "\n in file: $fileName" .
+          "\n within: $within";
+
+        error_log("$log\n\n");
     }
 }
